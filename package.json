@@ -4,11 +4,14 @@
   "description": "Mico is a micro web framework",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ts-node ./tests/index.ts"
   },
   "author": "minamorl",
   "license": "MIT",
   "devDependencies": {
+    "@types/tape": "^4.2.32",
+    "snabbdom": "^0.7.2",
+    "tape": "^4.9.1",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.0-dev.20180929"
   }
