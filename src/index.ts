@@ -59,6 +59,7 @@ export class Micox {
         } else {
             let dom = []
             for(let micoxObj of content) {
+                micoxObj.update()
                 dom.push(micoxObj.element)
             }
             this.element = h(this.elementType, {}, dom)
