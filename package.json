@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "description": "Micox is a declarative web framework",
   "main": "./dist/index.js",
+  "types" : "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rm -r dist && tsc",
     "test": "ts-node ./tests/index.ts"
