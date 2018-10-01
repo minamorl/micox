@@ -1,1 +1,1 @@
-# mico - a declarative web framework
+# micox - a declarative web framework
