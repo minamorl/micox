@@ -1,3 +1,11 @@
+const snabbdom = require('snabbdom');
+const patch = snabbdom.init([ // Init patch function with chosen modules
+    require('snabbdom/modules/class').default, // makes it easy to toggle classes
+    require('snabbdom/modules/props').default, // for setting properties on DOM elements
+    require('snabbdom/modules/style').default, // handles styling on elements with support for animations
+    require('snabbdom/modules/eventlisteners').default, // attaches event listeners
+])
+
 import {h} from "snabbdom/h"
 import {VNode} from "snabbdom/vnode"
 
@@ -20,28 +28,41 @@ export class Portal {
         return this.actions.set(identity, action)
     }
  }
-
+type ContainableObject = string | Array<Micox>
 export class Micox {
     private portal: Portal
     public element: VNode
-    private elementType: string = ""
-    private contentFunc: (portal: Portal) => string
-    constructor(portal: Portal) {
+    private elementType: string = "div"
+    private contentFunc: (portal: Portal) => ContainableObject
+    private patchTo?: Element
+    constructor(portal: Portal, patchTo?: Element) {
         this.portal = portal
         this.contentFunc = _ => ""
-        this.element = h("div")
+        this.element = h(this.elementType)
+        this.patchTo = patchTo
         portal.registAction(Symbol(), this.update)
     }
-    content = (func: (portal: Portal) => string) => {
+    contains = (func: (portal: Portal) => ContainableObject) => {
         this.contentFunc = func
+        this.update()
         return this
     }
     as = (type: string) => {
         this.elementType = type
+        this.update()
         return this
     }
     update = () => {
-        this.element = h(this.elementType, this.contentFunc(this.portal))
+        const content =  this.contentFunc(this.portal)
+        if (typeof content === "string") {
+            this.element = h(this.elementType, content)
+        } else {
+            let dom = []
+            for(let micoxObj of content) {
+                dom.push(micoxObj.element)
+            }
+            this.element = h(this.elementType, {}, dom)
+        }
+        if(this.patchTo) patch(this.patchTo, this.element)
     }
 }
-//    .onClick(portal => portal.emit(text: "modified"))

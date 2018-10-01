@@ -6,9 +6,20 @@ import {VNode} from "snabbdom/vnode"
 test("Micox should accept changes from transfered object", t => {
   const portal = new Portal()
   const div = new Micox(portal)
-    .content(portal => "text: " + portal.get("text", "default"))
+    .contains(portal => "text: " + portal.get("text", "default"))
     .as("div")
   portal.transfer(new Map([["text", "transfered"]]))
   t.equals(div.element.text, h("div", "text: transfered").text)
+  t.end()
+})
+test("Micox can handle complex children", t => {
+  const portal = new Portal()
+  const div = new Micox(portal)
+    .contains(portal => [
+      new Micox(portal).contains(portal => portal.get("text", "text1")),
+      new Micox(portal).contains(portal => [new Micox(portal).contains(portal => portal.get("text", "text1"))])
+    ])
+  portal.transfer(new Map([["text", "text2"]]))
+  t.deepEqual(div.element, h("div", {}, [h("div", "text2"), h("div", {}, [h("div", "text2")])]))
   t.end()
 })
