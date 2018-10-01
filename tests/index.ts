@@ -3,7 +3,7 @@ import {Micox, Portal} from "../src/index"
 import {h} from "snabbdom/h"
 import {VNode} from "snabbdom/vnode"
 
-test("Mico", t => {
+test("Micox should accept changes from transfered object", t => {
   const portal = new Portal()
   const div = new Micox(portal)
     .content(portal => "text: " + portal.get("text", "default"))

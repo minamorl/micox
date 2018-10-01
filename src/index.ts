@@ -3,7 +3,7 @@ import {VNode} from "snabbdom/vnode"
 
 export type Action = (states: {}) => void
 export class Portal {
-    private actions: Map<string, Action>
+    private actions: Map<Symbol, Action>
     private states: Map<string, any> = new Map()
     constructor() {
         this.actions = new Map()
@@ -16,8 +16,8 @@ export class Portal {
     get(name: string, defaultStr: string) {
         return this.states.has(name) ? this.states.get(name) : defaultStr
     }
-    set(name: string, action: Action) {
-        return this.actions.set(name, action)
+    registAction(identity: Symbol, action: Action) {
+        return this.actions.set(identity, action)
     }
  }
 
@@ -30,7 +30,7 @@ export class Micox {
         this.portal = portal
         this.contentFunc = _ => ""
         this.element = h("div")
-        portal.set("aaa", this.update)
+        portal.registAction(Symbol(), this.update)
     }
     content = (func: (portal: Portal) => string) => {
         this.contentFunc = func
