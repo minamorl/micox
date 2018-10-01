@@ -21,7 +21,7 @@ export class Portal {
     }
  }
 
-export class Mico {
+export class Micox {
     private portal: Portal
     public element: VNode
     private elementType: string = ""

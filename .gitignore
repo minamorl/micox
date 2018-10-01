@@ -74,3 +74,4 @@ typings/
 .serverless
 
 ./dist/main.js
+./dist
