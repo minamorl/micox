@@ -29,21 +29,26 @@ export class Portal {
     }
  }
 type ContainableObject = string | Array<Micox>
+type ContentFunction = (portal: Portal) => ContainableObject
 export class Micox {
-    private portal: Portal
+    private portal?: Portal
     public element: VNode
     private elementType: string = "div"
-    private contentFunc: (portal: Portal) => ContainableObject
+    private contentFunc: ContentFunction
+    private staticContent: string | null = null
     private patchTo?: Element
-    constructor(portal: Portal, patchTo?: Element) {
+    constructor(portal?: Portal, patchTo?: Element) {
         this.portal = portal
         this.contentFunc = _ => ""
         this.element = h(this.elementType)
         this.patchTo = patchTo
-        portal.registerAction(Symbol(), this.update)
+        if(portal) portal.registerAction(Symbol(), this.update)
     }
-    contains = (func: (portal: Portal) => ContainableObject) => {
-        this.contentFunc = func
+    contains = (content: ContentFunction | string) => {
+        if (typeof content === "string")
+            this.staticContent = content
+        else
+            this.contentFunc = content
         this.update()
         return this
     }
@@ -53,16 +58,18 @@ export class Micox {
         return this
     }
     update = () => {
-        const content =  this.contentFunc(this.portal)
+        const content = (this.portal) ? this.contentFunc(this.portal) : this.staticContent
         if (typeof content === "string") {
             this.element = h(this.elementType, content)
-        } else {
+        } else if (content !== null) {
             let dom = []
             for(let micoxObj of content) {
                 micoxObj.update()
                 dom.push(micoxObj.element)
             }
             this.element = h(this.elementType, {}, dom)
+        } else {
+            this.element = h(this.elementType)
         }
         if(this.patchTo) patch(this.patchTo, this.element)
     }

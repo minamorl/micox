@@ -23,3 +23,11 @@ test("Micox can handle complex children", t => {
   t.deepEqual(div.element, h("div", {}, [h("div", "text2"), h("div", {}, [h("div", "text2")])]))
   t.end()
 })
+test("Micox can be constructed without portal object", t => {
+  const div = new Micox().contains("static content")
+  t.deepEqual(div.element, h("div", "static content"))
+  t.end()
+})
+// test("Micox can be applied CSS", t => {
+
+// })
