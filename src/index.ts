@@ -24,7 +24,7 @@ export class Portal {
     get(name: string, defaultStr: string) {
         return this.states.has(name) ? this.states.get(name) : defaultStr
     }
-    registAction(identity: Symbol, action: Action) {
+    registerAction(identity: Symbol, action: Action) {
         return this.actions.set(identity, action)
     }
  }
@@ -40,7 +40,7 @@ export class Micox {
         this.contentFunc = _ => ""
         this.element = h(this.elementType)
         this.patchTo = patchTo
-        portal.registAction(Symbol(), this.update)
+        portal.registerAction(Symbol(), this.update)
     }
     contains = (func: (portal: Portal) => ContainableObject) => {
         this.contentFunc = func
