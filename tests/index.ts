@@ -28,6 +28,8 @@ test("Micox can be constructed without portal object", t => {
   t.deepEqual(div.element, h("div", "static content"))
   t.end()
 })
-// test("Micox can be applied CSS", t => {
-
-// })
+test("Micox can handle props", t => {
+  const div = new Micox().props({"id": "id"})
+  t.deepEqual(div.element, h("div", {props: {"id": "id"}}))
+  t.end()
+})

@@ -34,6 +34,7 @@ export class Micox {
     private portal?: Portal
     public element: VNode
     private elementType: string = "div"
+    private elementData: {[key: string]: any} = {}
     private contentFunc: ContentFunction
     private staticContent: string | null = null
     private patchTo?: Element
@@ -57,19 +58,24 @@ export class Micox {
         this.update()
         return this
     }
+    props = (props: {[key: string]: string}) => {
+        this.elementData["props"] = {...this.elementData["props"], ...props}
+        this.update()
+        return this
+    }
     update = () => {
         const content = (this.portal) ? this.contentFunc(this.portal) : this.staticContent
         if (typeof content === "string") {
-            this.element = h(this.elementType, content)
+            this.element = h(this.elementType, this.elementData, content)
         } else if (content !== null) {
             let dom = []
             for(let micoxObj of content) {
                 micoxObj.update()
                 dom.push(micoxObj.element)
             }
-            this.element = h(this.elementType, {}, dom)
+            this.element = h(this.elementType, this.elementData, dom)
         } else {
-            this.element = h(this.elementType)
+            this.element = h(this.elementType, this.elementData)
         }
         if(this.patchTo) patch(this.patchTo, this.element)
     }
