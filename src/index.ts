@@ -63,6 +63,12 @@ export class Micox {
         this.update()
         return this
     }
+    id = (id: string) => {
+        return this.props({id})
+    }
+    class = (className: string) => {
+        return this.props({class: className})
+    }
     update = () => {
         const content = (this.portal && !this.staticContent) ? this.contentFunc(this.portal) : this.staticContent
         if (typeof content === "string") {

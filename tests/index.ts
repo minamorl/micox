@@ -36,3 +36,13 @@ test("Micox can handle props", t => {
   t.deepEqual(div.element, h("div", {props: {"id": "id"}}))
   t.end()
 })
+test("Micox has shorthands for id", t => {
+  const div = new Micox().id("id")
+  t.deepEqual(div.element, h("div", {props: {"id": "id"}}))
+  t.end()
+})
+test("Micox has shorthands for class", t => {
+  const div = new Micox().class("class")
+  t.deepEqual(div.element, h("div", {props: {"class": "class"}}))
+  t.end()
+})
