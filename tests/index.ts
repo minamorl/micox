@@ -24,8 +24,11 @@ test("Micox can handle complex children", t => {
   t.end()
 })
 test("Micox can be constructed without portal object", t => {
-  const div = new Micox().contains("static content")
-  t.deepEqual(div.element, h("div", "static content"))
+  const div1 = new Micox().contains("static content")
+  t.deepEqual(div1.element, h("div", "static content"))
+  const portal = new Portal()
+  const div2 = new Micox(portal).contains("static content")
+  t.deepEqual(div2.element, h("div", "static content"))
   t.end()
 })
 test("Micox can handle props", t => {

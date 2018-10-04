@@ -64,7 +64,7 @@ export class Micox {
         return this
     }
     update = () => {
-        const content = (this.portal) ? this.contentFunc(this.portal) : this.staticContent
+        const content = (this.portal && !this.staticContent) ? this.contentFunc(this.portal) : this.staticContent
         if (typeof content === "string") {
             this.element = h(this.elementType, this.elementData, content)
         } else if (content !== null) {
