@@ -28,19 +28,24 @@ export class Portal {
         return this.actions.set(identity, action)
     }
  }
-type ContainableObject = string | Array<Micox>
-type ContentFunction = (portal: Portal) => ContainableObject
+type ContainableObject = string | Array<Micox> | null
+
+type PortalCallback<T> = (portal: Portal) => T
+type ContentFunction = PortalCallback<ContainableObject>
+type PropsFunction = PortalCallback<{[key: string]: string}>
+
 export class Micox {
     private portal?: Portal
     public element: VNode
     private elementType: string = "div"
     private elementData: {[key: string]: any} = {}
     private contentFunc: ContentFunction
+    private propsFunc?: PropsFunction
     private staticContent: string | null = null
     private patchTo?: Element
     constructor(portal?: Portal, patchTo?: Element) {
         this.portal = portal
-        this.contentFunc = _ => ""
+        this.contentFunc = _ => null
         this.element = h(this.elementType)
         this.patchTo = patchTo
         if(portal) portal.registerAction(Symbol(), this.update)
@@ -58,8 +63,14 @@ export class Micox {
         this.update()
         return this
     }
-    props = (props: {[key: string]: string}) => {
+    private setProps = (props: {[key: string]: string}) => {
         this.elementData["props"] = {...this.elementData["props"], ...props}
+    }
+    props = (props: PropsFunction | {[key: string]: string}) => {
+        if (typeof props === "function")
+            this.propsFunc = props
+        else
+            this.setProps(props)
         this.update()
         return this
     }
@@ -71,6 +82,11 @@ export class Micox {
     }
     update = () => {
         const content = (this.portal && !this.staticContent) ? this.contentFunc(this.portal) : this.staticContent
+        if (this.portal && this.propsFunc) {
+            const props = this.propsFunc(this.portal)
+            this.setProps(props)
+        }
+        const elementData = this.elementData
         if (typeof content === "string") {
             this.element = h(this.elementType, this.elementData, content)
         } else if (content !== null) {

@@ -36,12 +36,19 @@ test("Micox can handle props", t => {
   t.deepEqual(div.element, h("div", {props: {"id": "id"}}))
   t.end()
 })
-test("Micox has shorthands for id", t => {
+test("Micox can handle props with portal", t => {
+  const portal = new Portal()
+  const div = new Micox(portal).props(portal => {return {"id": portal.get("id", "default")}})
+  portal.transfer(new Map([["id", "transfered"]]))
+  t.deepEqual(div.element, h("div", {props: {"id": "transfered"}}))
+  t.end()
+})
+test("Micox has a shorthand for id", t => {
   const div = new Micox().id("id")
   t.deepEqual(div.element, h("div", {props: {"id": "id"}}))
   t.end()
 })
-test("Micox has shorthands for class", t => {
+test("Micox has a shorthand for class", t => {
   const div = new Micox().class("class")
   t.deepEqual(div.element, h("div", {props: {"class": "class"}}))
   t.end()
