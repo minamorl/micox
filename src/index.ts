@@ -42,13 +42,14 @@ export class Micox {
     private contentFunc: ContentFunction
     private propsFunc?: PropsFunction
     private staticContent: string | null = null
-    private patchTo?: Element
-    constructor(portal?: Portal, patchTo?: Element) {
+    private vnode?: VNode
+    constructor(portal?: Portal, patchTo?: HTMLElement) {
         this.portal = portal
         this.contentFunc = _ => null
         this.element = h(this.elementType)
-        this.patchTo = patchTo
+        this.vnode = patchTo ? patch(patchTo, this.element) : undefined
         if(portal) portal.registerAction(Symbol(), this.update)
+        this.update()
     }
     contains = (content: ContentFunction | string) => {
         if (typeof content === "string")
@@ -99,6 +100,8 @@ export class Micox {
         } else {
             this.element = h(this.elementType, this.elementData)
         }
-        if(this.patchTo) patch(this.patchTo, this.element)
+        if(this.vnode) {
+            patch(this.vnode, this.element)
+        }
     }
 }

@@ -53,3 +53,13 @@ test("Micox has a shorthand for class", t => {
   t.deepEqual(div.element, h("div", {props: {"class": "class"}}))
   t.end()
 })
+test("Micox can patch to jsdom", t => {
+  const cleanup = require('jsdom-global')("<div><div id='container' /></div>")
+  const container = document.getElementById("container")!
+  const portal = new Portal()
+  const div = new Micox(portal, container).id("default").contains("default")
+  t.equal(document.getElementById("id"), null)
+  t.assert(document.getElementById("default"))
+  cleanup()
+  t.end()
+})
