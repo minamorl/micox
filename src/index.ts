@@ -28,7 +28,7 @@ export class Portal {
         return this.actions.set(identity, action)
     }
  }
-type ContainableObject = string | Array<Micox> | null
+type ContainableObject = string | Array<Micox> | Micox | null
 
 type PortalCallback<T> = (portal: Portal) => T
 type ContentFunction = PortalCallback<ContainableObject>
@@ -39,23 +39,24 @@ export class Micox {
     public element: VNode
     private elementType: string = "div"
     private elementData: {[key: string]: any} = {}
-    private contentFunc: ContentFunction
     private propsFunc?: PropsFunction
-    private staticContent: string | null = null
+    private content: ContentFunction | ContainableObject | string | null = null
     private vnode?: VNode
+    private symbol: Symbol = Symbol()
     constructor(portal?: Portal, patchTo?: HTMLElement) {
         this.portal = portal
-        this.contentFunc = _ => null
         this.element = h(this.elementType)
         this.vnode = patchTo ? patch(patchTo, this.element) : undefined
-        if(portal) portal.registerAction(Symbol(), this.update)
+        if(portal) this.setPortal(portal)
+        else this.update()
+    }
+    setPortal = (portal: Portal) => {
+        this.portal = portal
+        portal.registerAction(this.symbol, this.update)
         this.update()
     }
-    contains = (content: ContentFunction | string) => {
-        if (typeof content === "string")
-            this.staticContent = content
-        else
-            this.contentFunc = content
+    contains = (content: ContentFunction | ContainableObject | string) => {
+        this.content = content
         this.update()
         return this
     }
@@ -82,15 +83,19 @@ export class Micox {
         return this.props({class: className})
     }
     update = () => {
-        const content = (this.portal && !this.staticContent) ? this.contentFunc(this.portal) : this.staticContent
+        const content = (this.portal && typeof this.content === "function") ? this.content(this.portal) : this.content
+        if (!this.portal && typeof this.content === "function") {
+            throw "Fatal: Cannot find a portal object."
+        }
         if (this.portal && this.propsFunc) {
             const props = this.propsFunc(this.portal)
             this.setProps(props)
         }
-        const elementData = this.elementData
         if (typeof content === "string") {
             this.element = h(this.elementType, this.elementData, content)
-        } else if (content !== null) {
+        } else if (content instanceof Micox) {
+            this.element = h(this.elementType, this.elementData, content.element)
+        } else if (Array.isArray(content)) {
             let dom = []
             for(let micoxObj of content) {
                 micoxObj.update()
@@ -104,4 +109,9 @@ export class Micox {
             patch(this.vnode, this.element)
         }
     }
+}
+
+const micoxWrapper = (name: string) => new Micox().as(name).contains
+export const html = {
+    div: micoxWrapper("div")
 }

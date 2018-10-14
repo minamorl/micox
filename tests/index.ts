@@ -1,5 +1,5 @@
 import test from "tape"
-import {Micox, Portal} from "../src/index"
+import {Micox, Portal, html} from "../src/index"
 import {h} from "snabbdom/h"
 import {VNode} from "snabbdom/vnode"
 
@@ -63,5 +63,16 @@ test("Micox can patch to jsdom", t => {
   div.contains("another content")
   t.equal(document.getElementById("default")!.textContent, "another content")
   cleanup()
+  t.end()
+})
+test("micoxWrapper is a shorthand of micox", t => {
+  const component = (portal: Portal) => html.div(
+    html.div(portal.get("text", "default")
+  ))
+  const portal = new Portal()
+  const div = new Micox(portal).contains(component)
+  t.deepEqual(div.element, h("div", {}, h("div", {}, h("div", "default"))))
+  portal.transfer(new Map([["text", "transfered"]]))
+  t.deepEqual(div.element, h("div", {}, h("div", {}, h("div", "transfered"))))
   t.end()
 })
