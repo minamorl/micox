@@ -54,14 +54,14 @@ test("Micox has a shorthand for class", t => {
   t.end()
 })
 test("Micox can patch to jsdom", t => {
-  const cleanup = require('jsdom-global')("<div><div id='container' /></div>")
+  const cleanup = require('jsdom-global')("<div id='outer'><div id='container' /></div>")
   const container = document.getElementById("container")!
   const portal = new Portal()
-  const div = new Micox(portal, container).id("default").contains("default")
-  t.equal(document.getElementById("id"), null)
-  t.equal(document.getElementById("default")!.textContent, "default")
+  const div = new Micox(portal, container).contains("default")
+  div.id("container")
+  t.equal(document.getElementById("container")!.textContent, "default")
   div.contains("another content")
-  t.equal(document.getElementById("default")!.textContent, "another content")
+  t.equal(document.getElementById("container")!.textContent, "another content")
   cleanup()
   t.end()
 })
@@ -74,5 +74,19 @@ test("micoxWrapper defines a shorthand of micox", t => {
   t.deepEqual(div.element, h("div", {}, h("div", {}, h("div", "default"))))
   portal.transfer(new Map([["text", "transfered"]]))
   t.deepEqual(div.element, h("div", {}, h("div", {}, h("div", "transfered"))))
+  t.end()
+})
+test("Micox handles events", t => {
+  const cleanup = require('jsdom-global')("<div id='outer'><div id='container' /></div>")
+  const component = (portal: Portal) => html.div(portal.get("text") || "default").events({
+    "click": (ev: any) => portal.transfer(new Map([["text", "changed"]]))
+  }).id("dive")
+  const portal = new Portal()
+  const container = document.querySelector("#container")! as HTMLElement
+  const div = new Micox(portal, container)
+    .contains(component);
+  (document.querySelector("#dive")! as HTMLElement).click()
+  t.equal(document.querySelector("#dive")!.textContent, "changed")
+  cleanup()
   t.end()
 })

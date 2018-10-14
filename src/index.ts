@@ -8,6 +8,7 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
 
 import {h} from "snabbdom/h"
 import {VNode} from "snabbdom/vnode"
+import {toVNode} from "snabbdom/tovnode"
 
 export type Action = (states: {}) => void
 export class Portal {
@@ -33,6 +34,7 @@ type ContainableObject = string | Array<Micox> | Micox | null
 type PortalCallback<T> = (portal: Portal) => T
 type ContentFunction = PortalCallback<ContainableObject>
 type PropsFunction = PortalCallback<{[key: string]: string}>
+type EventsFunction = PortalCallback<{[key: string]: (event: any) => any}>
 
 export class Micox {
     private portal?: Portal
@@ -40,13 +42,14 @@ export class Micox {
     private elementType: string = "div"
     private elementData: {[key: string]: any} = {}
     private propsFunc?: PropsFunction
+    private eventsFunc?: EventsFunction
     private content: ContentFunction | ContainableObject | string | null = null
     private vnode?: VNode
     private symbol: Symbol = Symbol()
     constructor(portal?: Portal, patchTo?: HTMLElement) {
         this.portal = portal
-        this.element = h(this.elementType)
-        this.vnode = patchTo ? patch(patchTo, this.element) : undefined
+        this.element = patchTo ? h(this.elementType, {props: {id: patchTo.id}}) : h(this.elementType)
+        this.vnode = patchTo ? patch(toVNode(patchTo), this.element) : undefined
         if(portal) this.setPortal(portal)
         else this.update()
     }
@@ -82,6 +85,25 @@ export class Micox {
     class = (className: string) => {
         return this.props({class: className})
     }
+    private setEvents = (events: {[key: string]: (ev: any) => any}) => {
+        const wrappedEvents: {[key: string]: (ev: any) => any} = {}
+        for (const key of Object.keys(events)) {
+            wrappedEvents[key] = (ev: any) => {
+                const result = events[key](ev)
+                this.update()
+                return result
+            }
+        }
+        this.elementData["on"] = {...this.elementData["on"], ...wrappedEvents}
+    }
+    events = (events: EventsFunction | {[key: string]: (ev: any) => any}) => {
+        if (typeof events === "function")
+            this.eventsFunc = events
+        else
+            this.setEvents(events)
+        this.update()
+        return this
+    }
     update = () => {
         const content = (this.portal && typeof this.content === "function") ? this.content(this.portal) : this.content
         if (!this.portal && typeof this.content === "function") {
@@ -90,6 +112,10 @@ export class Micox {
         if (this.portal && this.propsFunc) {
             const props = this.propsFunc(this.portal)
             this.setProps(props)
+        }
+        if (this.portal && this.eventsFunc) {
+            const events = this.eventsFunc(this.portal)
+            this.setEvents(events)
         }
         if (typeof content === "string") {
             this.element = h(this.elementType, this.elementData, content)
@@ -105,7 +131,7 @@ export class Micox {
             this.element = h(this.elementType, this.elementData)
         }
         if(this.vnode) {
-            patch(this.vnode, this.element)
+            this.vnode = patch(this.vnode, this.element)
         }
     }
 }
