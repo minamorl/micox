@@ -21,8 +21,8 @@ export class Portal {
         for (let action of this.actions)
             action[1](states)
     }
-    get(name: string, defaultStr: string) {
-        return this.states.has(name) ? this.states.get(name) : defaultStr
+    get(name: string) {
+        return this.states.get(name)
     }
     registerAction(identity: Symbol, action: Action) {
         return this.actions.set(identity, action)
@@ -98,7 +98,6 @@ export class Micox {
         } else if (Array.isArray(content)) {
             let dom = []
             for(let micoxObj of content) {
-                micoxObj.update()
                 dom.push(micoxObj.element)
             }
             this.element = h(this.elementType, this.elementData, dom)

@@ -8,7 +8,7 @@ The code will look like:
 ```ts
 const portal = new Portal()
 const div = new Micox(portal, document.getElementById("app-container"))
-    .contains(portal => "text: " + portal.get("text", "default"))
+    .contains(portal => "text: " + portal.get("text") || "default")
     .as("div")
 portal.transfer(new Map([["text", "transfered"]]))
 

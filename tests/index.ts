@@ -6,7 +6,7 @@ import {VNode} from "snabbdom/vnode"
 test("Micox should accept changes from transfered object", t => {
   const portal = new Portal()
   const div = new Micox(portal)
-    .contains(portal => "text: " + portal.get("text", "default"))
+    .contains(portal => "text: " + portal.get("text") || "default")
     .as("div")
   portal.transfer(new Map([["text", "transfered"]]))
   t.equals(div.element.text, h("div", "text: transfered").text)
@@ -16,8 +16,8 @@ test("Micox can handle complex children", t => {
   const portal = new Portal()
   const div = new Micox(portal)
     .contains(portal => [
-      new Micox(portal).contains(portal => portal.get("text", "text1")),
-      new Micox(portal).contains(portal => [new Micox(portal).contains(portal => portal.get("text", "text1"))])
+      new Micox(portal).contains(portal => portal.get("text") || "text1"),
+      new Micox(portal).contains(portal => [new Micox(portal).contains(portal => portal.get("text") || "text1")])
     ])
   portal.transfer(new Map([["text", "text2"]]))
   t.deepEqual(div.element, h("div", {}, [h("div", "text2"), h("div", {}, [h("div", "text2")])]))
@@ -38,7 +38,7 @@ test("Micox can handle props", t => {
 })
 test("Micox can handle props with portal", t => {
   const portal = new Portal()
-  const div = new Micox(portal).props(portal => {return {"id": portal.get("id", "default")}})
+  const div = new Micox(portal).props(portal => {return {"id": portal.get("id") || "default"}})
   portal.transfer(new Map([["id", "transfered"]]))
   t.deepEqual(div.element, h("div", {props: {"id": "transfered"}}))
   t.end()
@@ -65,10 +65,10 @@ test("Micox can patch to jsdom", t => {
   cleanup()
   t.end()
 })
-test("micoxWrapper is a shorthand of micox", t => {
-  const component = (portal: Portal) => html.div(
-    html.div(portal.get("text", "default")
-  ))
+test("micoxWrapper defines a shorthand of micox", t => {
+  const component = (portal: Portal) => html.div([
+    html.div(portal.get("text") || "default")
+  ])
   const portal = new Portal()
   const div = new Micox(portal).contains(component)
   t.deepEqual(div.element, h("div", {}, h("div", {}, h("div", "default"))))
