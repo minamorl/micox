@@ -86,15 +86,7 @@ export class Micox {
         return this.props({class: className})
     }
     private setEvents = (events: {[key: string]: (ev: any) => any}) => {
-        const wrappedEvents: {[key: string]: (ev: any) => any} = {}
-        for (const key of Object.keys(events)) {
-            wrappedEvents[key] = (ev: any) => {
-                const result = events[key](ev)
-                this.update()
-                return result
-            }
-        }
-        this.elementData["on"] = {...this.elementData["on"], ...wrappedEvents}
+        this.elementData["on"] = {...this.elementData["on"], ...events}
     }
     events = (events: EventsFunction | {[key: string]: (ev: any) => any}) => {
         if (typeof events === "function")
