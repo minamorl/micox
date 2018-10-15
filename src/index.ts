@@ -285,4 +285,3 @@ export const html = {
     time: micoxWrapper("time"),
     video: micoxWrapper("video")
 }
-html.a("hoge")
