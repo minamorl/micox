@@ -35,6 +35,7 @@ type PortalCallback<T> = (portal: Portal) => T
 type ContentFunction = PortalCallback<ContainableObject>
 type PropsFunction = PortalCallback<{[key: string]: string}>
 type EventsFunction = PortalCallback<{[key: string]: (event: any) => any}>
+type AttrsFunction = PortalCallback<{[key: string]: string | boolean | null}>
 
 export class Micox {
     private portal?: Portal
@@ -43,6 +44,7 @@ export class Micox {
     private elementData: {[key: string]: any} = {}
     private propsFunc?: PropsFunction
     private eventsFunc?: EventsFunction
+    private attrsFunc?: AttrsFunction
     private content: ContentFunction | ContainableObject | string | null = null
     private vnode?: VNode
     private symbol: Symbol = Symbol()
@@ -96,6 +98,17 @@ export class Micox {
         this.update()
         return this
     }
+    private setAttrs = (attrs: {[key: string]: string | boolean | null}) => {
+        this.elementData["attrs"] = {...this.elementData["attrs"], ...attrs}
+    }
+    attrs = (attrs: AttrsFunction | {[key: string]: string | boolean | null}) => {
+        if (typeof attrs === "function")
+            this.attrsFunc = attrs
+        else
+            this.setAttrs(attrs)
+        this.update()
+        return this
+    }
     update = () => {
         const content = (this.portal && typeof this.content === "function") ? this.content(this.portal) : this.content
         if (!this.portal && typeof this.content === "function") {
@@ -108,6 +121,10 @@ export class Micox {
         if (this.portal && this.eventsFunc) {
             const events = this.eventsFunc(this.portal)
             this.setEvents(events)
+        }
+        if (this.portal && this.attrsFunc) {
+            const events = this.attrsFunc(this.portal)
+            this.setAttrs(events)
         }
         if (typeof content === "string") {
             this.element = h(this.elementType, this.elementData, content)

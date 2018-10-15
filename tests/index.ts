@@ -36,6 +36,11 @@ test("Micox can handle props", t => {
   t.deepEqual(div.element, h("div", {props: {"id": "id"}}))
   t.end()
 })
+test("Micox can handle attrs", t => {
+  const div = new Micox().attrs({"href": "test"})
+  t.deepEqual(div.element, h("div", {attrs: {"href": "test"}}))
+  t.end()
+})
 test("Micox can handle props with portal", t => {
   const portal = new Portal()
   const div = new Micox(portal).props(portal => {return {"id": portal.get("id") || "default"}})
