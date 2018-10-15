@@ -73,5 +73,5 @@ typings/
 # Serverless directories
 .serverless
 
-./dist/main.js
-/dist
+example/dist/main.js
+dist/
