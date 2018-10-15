@@ -2,6 +2,18 @@
 
 ## Usage
 
+```ts
+// Create portal object for communicating between 
+const portal = new Portal()
+const component = (portal: Portal) => html.div(porta.get("text") || "default").events(
+  "click": (ev: any) => portal.transfer(new Map([["text", "changed"]]))
+)
+const container = document.querySelector("#container")
+new Micox(portal, container).contains(component)
+```
+
+## Internal
+
 TL;DR: There are two main objects, `Micox` and `Portal`. `Micox` is a virtual dom. And `Portal` handles states of micox. `portal.get` and `portal.transfer` are pair functions.
 The code will look like:
 
