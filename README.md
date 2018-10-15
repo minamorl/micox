@@ -1,4 +1,5 @@
 # micox - a declarative web framework
+[![npm version](https://badge.fury.io/js/micox.svg)](https://badge.fury.io/js/micox)
 
 ## Usage
 
