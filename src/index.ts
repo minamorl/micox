@@ -48,7 +48,7 @@ export class Micox {
     private content: ContentFunction | ContainableObject | string | null = null
     private vnode?: VNode
     private symbol: Symbol = Symbol()
-    private parent?: Micox
+    public parent?: Micox
     constructor(portal?: Portal, patchTo?: Element) {
         this.portal = portal
         this.element = patchTo ? h(this.elementType, {props: {id: patchTo.id}}) : h(this.elementType)
@@ -58,7 +58,14 @@ export class Micox {
     }
     destroy = () => {
         this.element = undefined
-        if (this.parent) this.parent.update() 
+        if (this.parent) {
+            let {parent} = this
+            parent.update()
+            while (parent.parent) {
+                parent = parent.parent
+                parent.update()
+            }
+        }
         return null
     }
     setPortal = (portal: Portal) => {
@@ -139,7 +146,7 @@ export class Micox {
         }
         if (typeof content === "string") {
             this.element = h(this.elementType, this.elementData, content)
-        } else if (content instanceof Micox) {
+        } else if (content instanceof Micox && this.element) {
             this.element = h(this.elementType, this.elementData, content.element)
         } else if (Array.isArray(content)) {
             let dom = []
