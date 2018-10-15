@@ -48,7 +48,7 @@ export class Micox {
     private content: ContentFunction | ContainableObject | string | null = null
     private vnode?: VNode
     private symbol: Symbol = Symbol()
-    constructor(portal?: Portal, patchTo?: HTMLElement) {
+    constructor(portal?: Portal, patchTo?: Element) {
         this.portal = portal
         this.element = patchTo ? h(this.elementType, {props: {id: patchTo.id}}) : h(this.elementType)
         this.vnode = patchTo ? patch(toVNode(patchTo), this.element) : undefined
