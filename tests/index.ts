@@ -9,7 +9,7 @@ test("Micox should accept changes from transfered object", t => {
     .contains(portal => "text: " + portal.get("text") || "default")
     .as("div")
   portal.transfer(new Map([["text", "transfered"]]))
-  t.equals(div.element.text, h("div", "text: transfered").text)
+  t.equals(div.element!.text!, h("div", "text: transfered").text)
   t.end()
 })
 test("Micox can handle complex children", t => {
@@ -93,5 +93,13 @@ test("Micox handles events", t => {
   (document.querySelector("#dive")! as HTMLElement).click()
   t.equal(document.querySelector("#dive")!.textContent, "changed")
   cleanup()
+  t.end()
+})
+test("Element can be destroyed", t => {
+  const div = html.div("")
+  const m = new Micox().contains([div])
+  t.deepEqual(m.element, h("div", {}, [h("div", "")]))
+  div.destroy()
+  t.deepEqual(m.element, h("div", {}))
   t.end()
 })

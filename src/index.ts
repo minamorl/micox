@@ -39,7 +39,7 @@ type AttrsFunction = PortalCallback<{[key: string]: string | boolean | null}>
 
 export class Micox {
     private portal?: Portal
-    public element: VNode
+    public element: VNode | undefined
     private elementType: string = "div"
     private elementData: {[key: string]: any} = {}
     private propsFunc?: PropsFunction
@@ -48,6 +48,7 @@ export class Micox {
     private content: ContentFunction | ContainableObject | string | null = null
     private vnode?: VNode
     private symbol: Symbol = Symbol()
+    private parent?: Micox
     constructor(portal?: Portal, patchTo?: Element) {
         this.portal = portal
         this.element = patchTo ? h(this.elementType, {props: {id: patchTo.id}}) : h(this.elementType)
@@ -55,13 +56,23 @@ export class Micox {
         if(portal) this.setPortal(portal)
         else this.update()
     }
+    destroy = () => {
+        this.element = undefined
+        if (this.parent) this.parent.update() 
+        return null
+    }
     setPortal = (portal: Portal) => {
         this.portal = portal
         portal.registerAction(this.symbol, this.update)
         this.update()
     }
-    contains = (content: ContentFunction | ContainableObject | string) => {
+    contains = (content: ContentFunction | ContainableObject | string | null) => {
         this.content = content
+        if (content instanceof Micox) {
+            content.parent = this
+        } else if (Array.isArray(content)) {
+            content.map(instance => instance.parent = this)
+        }
         this.update()
         return this
     }
@@ -135,8 +146,12 @@ export class Micox {
             for(let micoxObj of content) {
                 dom.push(micoxObj.element)
             }
-            this.element = h(this.elementType, this.elementData, dom)
-        } else {
+            dom = dom.filter(v => v) // remove undefined objects
+            if(dom.length)
+                this.element = h(this.elementType, this.elementData, dom)
+            else
+                this.element = h(this.elementType, this.elementData)
+        } else if (this.element !== undefined) {
             this.element = h(this.elementType, this.elementData)
         }
         if(this.vnode) {
@@ -145,7 +160,8 @@ export class Micox {
     }
 }
 
-const micoxWrapper = (name: string) => new Micox().as(name).contains
+const micoxWrapper = (name: string) => (content: ContentFunction | ContainableObject | string | null) => new Micox().as(name).contains(content)
+
 export const html = {
     a: micoxWrapper("a"),
     article: micoxWrapper("article"),
@@ -262,3 +278,4 @@ export const html = {
     time: micoxWrapper("time"),
     video: micoxWrapper("video")
 }
+html.a("hoge")
