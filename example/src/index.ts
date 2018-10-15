@@ -13,7 +13,7 @@ const component = (portal: Portal) => {
   }))
   return html.div([
     html.h1("ToDo App"),
-    html.input("").events({
+    html.input("").attrs({placeholder: "Insert your task"}).events({
       "keyup": (ev: any) => {
         if (ev.key === 'Enter')
           portal.transfer(new Map([["lists", [...portal.get("lists"), ...[ev.target.value]]]]))

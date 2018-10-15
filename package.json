@@ -1,6 +1,6 @@
 {
   "name": "micox",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Micox is a declarative web framework",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
