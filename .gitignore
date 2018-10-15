@@ -74,4 +74,4 @@ typings/
 .serverless
 
 example/dist/main.js
-dist/
+/dist/
