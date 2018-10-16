@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "rm -r dist && tsc",
-    "prepublish": "npm run build && npm test",
+    "prepublishOnly": "npm run build && npm test",
     "test": "ts-node ./tests/index.ts"
   },
   "author": "minamorl",

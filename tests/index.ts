@@ -1,7 +1,6 @@
 import test from "tape"
 import {Micox, Portal, html} from "../src/index"
 import {h} from "snabbdom/h"
-import {VNode} from "snabbdom/vnode"
 
 test("Micox should accept changes from transfered object", t => {
   const portal = new Portal()

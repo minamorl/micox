@@ -14,16 +14,17 @@ import {toVNode} from "snabbdom/tovnode"
 export type Action = (states: {}) => void
 export class Portal {
     private actions: Map<Symbol, Action>
-    private states: Map<string, any> = new Map()
-    constructor() {
+    private states: Map<any, any> = new Map()
+    constructor(states?: Map<any, any>) {
         this.actions = new Map()
+        this.states = states ? states : this.states
     }
-    transfer(states: Map<string, any>) {
+    transfer(states: Map<any, any>) {
         this.states = new Map([...this.states, ...states])
         for (let action of this.actions)
             action[1](states)
     }
-    get(name: string) {
+    get(name: any) {
         return this.states.get(name)
     }
     registerAction(identity: Symbol, action: Action) {
