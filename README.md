@@ -4,15 +4,19 @@
 ## Usage
 
 ```ts
-// Create portal object for communicating between 
+// Create portal object for communicating.
 const portal = new Portal()
-// Define a component and register event handler
-const component = (portal: Portal) => html.div(porta.get("text") || "default").events(
-  "click": (ev: any) => portal.transfer(new Map([["text", "changed"]]))
-)
-// Apply to container
+// Define keys for portal. (this is optional)
+const states = {
+    text: Symbol()
+}
+// Define a component and register event handler.
+const component = (portal: Portal) => html.div(portal.get(states.text) || "default").events({
+  "click": (ev: any) => portal.transfer(new Map([[states.text, "changed"]]))
+})
+// Apply to container.
 const container = document.querySelector("#container")
-new Micox(portal, container).contains(component)
+new Micox(portal, container!).contains(component)
 ```
 
 ## Internal
