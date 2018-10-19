@@ -111,9 +111,10 @@ test("Micox can contains multiple portal wrappers", t => {
   const div1 = html.div()
   const wrapped = (portal: Portal) => html.div()
   const portal = new Portal()
-  new Micox(portal).contains([
+  const m = new Micox(portal).contains([
     wrapped,
     div1
   ])
+  t.deepEquals(m.element, h("div", {}, [h("div", {})]))
   t.end()
 })
