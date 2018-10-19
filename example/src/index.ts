@@ -1,7 +1,7 @@
 import {Micox, Portal, html} from "micox"
 
 const portal = new Portal()
-portal.transfer(new Map([["lists", ["Task1", "Task2"]]]))
+portal.transfer("lists", ["Task1", "Task2"])
 
 const component = (portal: Portal) => {
   const lists = Array.from(Array((portal.get("lists").length || 0)).keys())
@@ -9,14 +9,14 @@ const component = (portal: Portal) => {
   const ul = html.ul(lists)
   const listData = portal.get("lists")
   lists.forEach((v, i) => v.events({
-    click: (ev) => portal.transfer(new Map([["lists", listData.splice(i, 1) && listData]]))
+    click: (ev) => portal.transfer("lists", listData.splice(i, 1) && listData)
   }))
   return html.div([
     html.h1("ToDo App"),
     html.input("").attrs({placeholder: "Insert your task"}).events({
       "keyup": (ev: any) => {
         if (ev.key === 'Enter')
-          portal.transfer(new Map([["lists", [...portal.get("lists"), ...[ev.target.value]]]]))
+          portal.transfer("lists", [...portal.get("lists"), ...[ev.target.value]])
       }
     }),
     ul
