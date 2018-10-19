@@ -31,13 +31,15 @@ export class Portal {
         return this.actions.set(identity, action)
     }
  }
-type ContainableObject = string | Array<Micox> | Micox | null
+type ContainableObject = string | Micox | null
 
 type PortalCallback<T> = (portal: Portal) => T
-type ContentFunction = PortalCallback<ContainableObject>
+type ContentFunction = PortalCallback<ContainableObject | Array<ContainableObject>>
 type PropsFunction = PortalCallback<{[key: string]: string}>
 type EventsFunction = PortalCallback<{[key: string]: (event: any) => any}>
 type AttrsFunction = PortalCallback<{[key: string]: string | boolean | null}>
+
+type MicoxContent = ContentFunction | ContainableObject | Array<ContentFunction | ContainableObject>
 
 export class Micox {
     private portal?: Portal
@@ -47,7 +49,7 @@ export class Micox {
     private propsFunc?: PropsFunction
     private eventsFunc?: EventsFunction
     private attrsFunc?: AttrsFunction
-    private content: ContentFunction | ContainableObject | string | null = null
+    private content: MicoxContent| string | null = null
     private vnode?: VNode
     private symbol: Symbol = Symbol()
     public parent?: Micox
@@ -75,12 +77,14 @@ export class Micox {
         portal.registerAction(this.symbol, this.update)
         this.update()
     }
-    contains = (content?: ContentFunction | ContainableObject | string | null) => {
+    contains = (content?: MicoxContent) => {
         this.content = content ? content : null
         if (content instanceof Micox) {
             content.parent = this
         } else if (Array.isArray(content)) {
-            content.map(instance => instance.parent = this)
+            for (let _content of content) {
+                if (_content instanceof Micox) _content.parent = this
+            }
         }
         this.update()
         return this
@@ -129,11 +133,13 @@ export class Micox {
         this.update()
         return this
     }
-    update = () => {
-        const content = (this.portal && typeof this.content === "function") ? this.content(this.portal) : this.content
+    setPortalToContent = (content: MicoxContent | string | null) => {
         if (!this.portal && typeof this.content === "function") {
             throw "Fatal: Cannot find a portal object."
         }
+        return this.portal && typeof this.content === "function" ? this.content(this.portal) : this.content
+    }
+    update = () => {
         if (this.portal && this.propsFunc) {
             const props = this.propsFunc(this.portal)
             this.setProps(props)
@@ -146,14 +152,22 @@ export class Micox {
             const events = this.attrsFunc(this.portal)
             this.setAttrs(events)
         }
+        const content = this.setPortalToContent(this.content)
+        
         if (typeof content === "string") {
             this.element = h(this.elementType, this.elementData, content)
         } else if (content instanceof Micox && this.element) {
             this.element = h(this.elementType, this.elementData, content.element)
         } else if (Array.isArray(content)) {
             let dom = []
-            for(let micoxObj of content) {
-                dom.push(micoxObj.element)
+            for(let _content of content) {
+                if (_content && typeof _content === "function") {
+                    let obj = this.setPortalToContent(_content)
+                    if (obj instanceof Micox) dom.push(obj.element)
+                    if (typeof obj === "string") dom.push(obj)
+                } else if (_content && _content instanceof Micox) {
+                    dom.push(_content.element)
+                }
             }
             dom = dom.filter(v => v) // remove undefined objects
             if(dom.length)
@@ -169,7 +183,7 @@ export class Micox {
     }
 }
 
-const micoxWrapper = (name: string) => (content?: ContentFunction | ContainableObject | string | null) => new Micox().as(name).contains(content)
+const micoxWrapper = (name: string) => (content?: MicoxContent) => new Micox().as(name).contains(content)
 
 export const html = {
     a: micoxWrapper("a"),
