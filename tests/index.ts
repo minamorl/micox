@@ -7,7 +7,7 @@ test("Micox should accept changes from transfered object", t => {
   const div = new Micox(portal)
     .contains(portal => "text: " + portal.get("text") || "default")
     .as("div")
-  portal.transfer(new Map([["text", "transfered"]]))
+  portal.transfer("text", "transfered")
   t.equals(div.element!.text!, h("div", "text: transfered").text)
   t.end()
 })
@@ -18,7 +18,7 @@ test("Micox can handle complex children", t => {
       new Micox(portal).contains(portal => portal.get("text") || "text1"),
       new Micox(portal).contains(portal => [new Micox(portal).contains(portal => portal.get("text") || "text1")])
     ])
-  portal.transfer(new Map([["text", "text2"]]))
+  portal.transfer("text", "text2")
   t.deepEqual(div.element, h("div", {}, [h("div", "text2"), h("div", {}, [h("div", "text2")])]))
   t.end()
 })
@@ -43,7 +43,7 @@ test("Micox can handle attrs", t => {
 test("Micox can handle props with portal", t => {
   const portal = new Portal()
   const div = new Micox(portal).props(portal => {return {"id": portal.get("id") || "default"}})
-  portal.transfer(new Map([["id", "transfered"]]))
+  portal.transfer("id", "transfered")
   t.deepEqual(div.element, h("div", {props: {"id": "transfered"}}))
   t.end()
 })
@@ -76,14 +76,14 @@ test("micoxWrapper defines a shorthand of micox", t => {
   const portal = new Portal()
   const div = new Micox(portal).contains(component)
   t.deepEqual(div.element, h("div", {}, h("div", {}, h("div", "default"))))
-  portal.transfer(new Map([["text", "transfered"]]))
+  portal.transfer("text", "transfered")
   t.deepEqual(div.element, h("div", {}, h("div", {}, h("div", "transfered"))))
   t.end()
 })
 test("Micox handles events", t => {
   const cleanup = require('jsdom-global')("<div id='outer'><div id='container' /></div>")
   const component = (portal: Portal) => html.div(portal.get("text") || "default").events({
-    "click": (ev: any) => portal.transfer(new Map([["text", "changed"]]))
+    "click": (ev: any) => portal.transfer("text", "changed")
   }).id("dive")
   const portal = new Portal()
   const container = document.querySelector("#container")! as HTMLElement
@@ -100,5 +100,10 @@ test("Element can be destroyed", t => {
   const m = new Micox().contains([div])
   input.destroy()
   t.deepEqual(m.element, h("div", {}, h("div", {})))
+  t.end()
+})
+test("Micox can contains undefined", t => {
+  const div = html.div()
+  t.deepEqual(div.element, h("div", {}))
   t.end()
 })

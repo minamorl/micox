@@ -19,10 +19,10 @@ export class Portal {
         this.actions = new Map()
         this.states = states ? states : this.states
     }
-    transfer(states: Map<any, any>) {
-        this.states = new Map([...this.states, ...states])
+    transfer(key: any, value: any) {
+        this.states = new Map([...this.states, ...new Map([[key, value]])])
         for (let action of this.actions)
-            action[1](states)
+            action[1](this.states)
     }
     get(name: any) {
         return this.states.get(name)
@@ -75,8 +75,8 @@ export class Micox {
         portal.registerAction(this.symbol, this.update)
         this.update()
     }
-    contains = (content: ContentFunction | ContainableObject | string | null) => {
-        this.content = content
+    contains = (content?: ContentFunction | ContainableObject | string | null) => {
+        this.content = content ? content : null
         if (content instanceof Micox) {
             content.parent = this
         } else if (Array.isArray(content)) {
@@ -169,7 +169,7 @@ export class Micox {
     }
 }
 
-const micoxWrapper = (name: string) => (content: ContentFunction | ContainableObject | string | null) => new Micox().as(name).contains(content)
+const micoxWrapper = (name: string) => (content?: ContentFunction | ContainableObject | string | null) => new Micox().as(name).contains(content)
 
 export const html = {
     a: micoxWrapper("a"),

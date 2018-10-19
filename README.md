@@ -1,6 +1,7 @@
 # micox - a declarative web framework
 [![npm version](https://badge.fury.io/js/micox.svg)](https://badge.fury.io/js/micox)
 
+Micox is a declarative web framework designed for simplicity. It uses virtualdom via snabbdom internally.
 ## Usage
 
 ```ts
@@ -12,7 +13,7 @@ const states = {
 }
 // Define a component and register event handler.
 const component = (portal: Portal) => html.div(portal.get(states.text) || "default").events({
-  "click": (ev: any) => portal.transfer(new Map([[states.text, "changed"]]))
+  "click": (ev: any) => portal.transfer(states.text, "changed")
 })
 // Apply to container.
 const container = document.querySelector("#container")
