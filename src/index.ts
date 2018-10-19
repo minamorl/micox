@@ -133,7 +133,7 @@ export class Micox {
         this.update()
         return this
     }
-    setPortalToContent = (content: MicoxContent | string | null) => {
+    setPortalToContent = () => {
         if (!this.portal && typeof this.content === "function") {
             throw "Fatal: Cannot find a portal object."
         }
@@ -152,7 +152,7 @@ export class Micox {
             const events = this.attrsFunc(this.portal)
             this.setAttrs(events)
         }
-        const content = this.setPortalToContent(this.content)
+        const content = this.setPortalToContent()
         
         if (typeof content === "string") {
             this.element = h(this.elementType, this.elementData, content)
@@ -162,12 +162,12 @@ export class Micox {
             let dom = []
             for(let _content of content) {
                 if (_content && typeof _content === "function") {
-                    let obj = this.setPortalToContent(_content)
+                    let obj = this.portal && typeof _content === "function" ? _content(this.portal) : _content
                     if (obj instanceof Micox) dom.push(obj.element)
                     if (typeof obj === "string") dom.push(obj)
                 } else if (_content && _content instanceof Micox) {
                     dom.push(_content.element)
-                }
+                } else if (typeof _content === "string") dom.push(_content)
             }
             dom = dom.filter(v => v) // remove undefined objects
             if(dom.length)

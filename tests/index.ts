@@ -109,12 +109,15 @@ test("Micox can contains undefined", t => {
 })
 test("Micox can contains multiple portal wrappers", t => {
   const div1 = html.div()
-  const wrapped = (portal: Portal) => html.div()
+  const wrapped1 = (portal: Portal) => html.div("text")
+  const wrapped2 = (portal: Portal) => "pure string"
   const portal = new Portal()
   const m = new Micox(portal).contains([
-    wrapped,
+    "text",
+    wrapped1,
+    wrapped2,
     div1
   ])
-  t.deepEquals(m.element, h("div", {}, [h("div", {})]))
+  t.deepEquals(m.element, h("div", {}, ["text", h("div", {}, "text"), "pure string", h("div", {})]))
   t.end()
 })
