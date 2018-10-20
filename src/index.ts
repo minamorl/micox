@@ -53,8 +53,9 @@ export class Micox {
     private vnode?: VNode
     private symbol: Symbol = Symbol()
     public parent?: Micox
-    constructor(portal?: Portal, patchTo?: Element) {
+    constructor(portal?: Portal, patchTo?: Element, elementType?: string) {
         this.portal = portal
+        this.elementType = elementType ? elementType : this.elementType
         this.element = patchTo ? h(this.elementType, {props: {id: patchTo.id}}) : h(this.elementType)
         this.vnode = patchTo ? patch(toVNode(patchTo), this.element) : undefined
         if(portal) this.setPortal(portal)
@@ -183,7 +184,7 @@ export class Micox {
     }
 }
 
-const micoxWrapper = (name: string) => (content?: MicoxContent) => new Micox().as(name).contains(content)
+const micoxWrapper = (name: string) => (content?: MicoxContent) => new Micox(undefined, undefined, name).contains(content)
 
 export const html = {
     a: micoxWrapper("a"),
