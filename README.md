@@ -1,5 +1,6 @@
 # micox - a declarative web framework
 [![npm version](https://badge.fury.io/js/micox.svg)](https://badge.fury.io/js/micox)
+[![CircleCI](https://circleci.com/gh/minamorl/micox.svg?style=svg)](https://circleci.com/gh/minamorl/micox)
 
 ## Introduction
 
