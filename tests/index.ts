@@ -121,3 +121,10 @@ test("Micox can contains multiple portal wrappers", t => {
   t.deepEquals(m.element, h("div", {}, ["text", h("div", {}, "text"), "pure string", h("div", {})]))
   t.end()
 })
+test("Micox can handle snabbdom's hooks", t => {
+  const m = new Micox().hooks({
+    insert: (vnode: any) => true
+  })
+  t.assert(m.element && m.element.data && m.element.data.hook)
+  t.end()
+})

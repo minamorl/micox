@@ -71,7 +71,7 @@ export class Micox {
                 parent.update()
             }
         }
-        return null
+        return this
     }
     setPortal = (portal: Portal) => {
         this.portal = portal
@@ -96,7 +96,7 @@ export class Micox {
         return this
     }
     private setProps = (props: {[key: string]: string}) => {
-        this.elementData["props"] = {...this.elementData["props"], ...props}
+        this.elementData["props"] = props
     }
     props = (props: PropsFunction | {[key: string]: string}) => {
         if (typeof props === "function")
@@ -113,7 +113,7 @@ export class Micox {
         return this.props({class: className})
     }
     private setEvents = (events: {[key: string]: (ev: any) => any}) => {
-        this.elementData["on"] = {...this.elementData["on"], ...events}
+        this.elementData["on"] = events
     }
     events = (events: EventsFunction | {[key: string]: (ev: any) => any}) => {
         if (typeof events === "function")
@@ -124,7 +124,7 @@ export class Micox {
         return this
     }
     private setAttrs = (attrs: {[key: string]: string | boolean | null}) => {
-        this.elementData["attrs"] = {...this.elementData["attrs"], ...attrs}
+        this.elementData["attrs"] = attrs
     }
     attrs = (attrs: AttrsFunction | {[key: string]: string | boolean | null}) => {
         if (typeof attrs === "function")
@@ -132,6 +132,10 @@ export class Micox {
         else
             this.setAttrs(attrs)
         this.update()
+        return this
+    }
+    hooks = (hooks: {[key: string]: any}) => {
+        this.elementData["hook"] = hooks
         return this
     }
     setPortalToContent = () => {
