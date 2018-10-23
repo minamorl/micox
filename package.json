@@ -24,6 +24,8 @@
     "typescript": "^3.2.0-dev.20180929"
   },
   "dependencies": {
-    "snabbdom": "^0.7.2"
+    "@types/urijs": "^1.15.38",
+    "snabbdom": "^0.7.2",
+    "urijs": "^1.19.1"
   }
 }

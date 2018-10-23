@@ -1,5 +1,6 @@
 import test from "tape"
 import {Micox, Portal, html} from "../src/index"
+import {destructURL} from "../src/router"
 import {h} from "snabbdom/h"
 
 test("Micox should accept changes from transfered object", t => {
@@ -126,5 +127,19 @@ test("Micox can handle snabbdom's hooks", t => {
     insert: (vnode: any) => true
   })
   t.assert(m.element && m.element.data && m.element.data.hook)
+  t.end()
+})
+test("destructURL should work correctly with routing strings", t => {
+  const f = (url: string, data: {[key: string]: string}) => ({
+    query: "",
+    fragment: "",
+    path: url,
+    data: data
+  })
+  t.deepEqual(destructURL("/go/", "/go/"), f("/go/", {}))
+  t.deepEqual(destructURL("/go/to/path/3/", "/go/to/path/"), false)
+  t.deepEqual(destructURL("/go/to/path/3/", "/go/to/path/{:id}"), f("/go/to/path/3/", {id: "3"}))
+  t.deepEqual(destructURL("/go/to/path/3/id/", "/go/to/path/{:id}/id/{:s}"), false)
+  t.deepEqual(destructURL("/go/to/path/3/id/string", "/go/to/path/{:id}/id/{:s}"), f("/go/to/path/3/id/string", {id: "3", s: "string"}))
   t.end()
 })

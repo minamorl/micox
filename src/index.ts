@@ -31,15 +31,15 @@ export class Portal {
         return this.actions.set(identity, action)
     }
  }
-type ContainableObject = string | Micox | null
+export type ContainableObject = string | Micox | null
 
-type PortalCallback<T> = (portal: Portal) => T
-type ContentFunction = PortalCallback<ContainableObject | Array<ContainableObject>>
-type PropsFunction = PortalCallback<{[key: string]: string}>
-type EventsFunction = PortalCallback<{[key: string]: (event: any) => any}>
-type AttrsFunction = PortalCallback<{[key: string]: string | boolean | null}>
+export type PortalCallback<T> = (portal: Portal) => T
+export type ContentFunction = PortalCallback<ContainableObject | Array<ContainableObject>>
+export type PropsFunction = PortalCallback<{[key: string]: string}>
+export type EventsFunction = PortalCallback<{[key: string]: (event: any) => any}>
+export type AttrsFunction = PortalCallback<{[key: string]: string | boolean | null}>
 
-type MicoxContent = ContentFunction | ContainableObject | Array<ContentFunction | ContainableObject>
+export type MicoxContent = ContentFunction | ContainableObject | Array<ContentFunction | ContainableObject>
 
 export class Micox {
     private portal?: Portal
@@ -188,7 +188,7 @@ export class Micox {
     }
 }
 
-const micoxWrapper = (name: string) => (content?: MicoxContent) => new Micox(undefined, undefined, name).contains(content)
+export const micoxWrapper = (name: string) => (content?: MicoxContent) => new Micox(undefined, undefined, name).contains(content)
 
 export const html = {
     a: micoxWrapper("a"),
