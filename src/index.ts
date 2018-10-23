@@ -210,7 +210,6 @@ export const html = {
     section: micoxWrapper("section"),
     span: micoxWrapper("span"),
     summary: micoxWrapper("summary"),
-    Metadata: micoxWrapper("Metadata"),
     base: micoxWrapper("base"),
     basefont: micoxWrapper("basefont"),
     link: micoxWrapper("link"),
