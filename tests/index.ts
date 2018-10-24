@@ -1,6 +1,6 @@
 import test from "tape"
 import {Micox, Portal, html} from "../src/index"
-import {destructURL} from "../src/router"
+import {destructURL, Router, IDestructedURL} from "../src/router"
 import {h} from "snabbdom/h"
 
 test("Micox should accept changes from transfered object", t => {
@@ -141,5 +141,17 @@ test("destructURL should work correctly with routing strings", t => {
   t.deepEqual(destructURL("/go/to/path/3/", "/go/to/path/{:id}"), f("/go/to/path/3/", {id: "3"}))
   t.deepEqual(destructURL("/go/to/path/3/id/", "/go/to/path/{:id}/id/{:s}"), false)
   t.deepEqual(destructURL("/go/to/path/3/id/string", "/go/to/path/{:id}/id/{:s}"), f("/go/to/path/3/id/string", {id: "3", s: "string"}))
+  t.end()
+})
+test("Micox can mount Router ", t => {
+  const cleanup = require('jsdom-global')("<div id='outer'><div id='container' /></div>", {
+    url: "http://localhost:3000/"
+  })
+  const router = new Router()
+  router.route("/url", (props: IDestructedURL) => html.div())
+  const m = new Micox().contains(router)
+  router.redirect("/url")
+  t.deepEqual(m.element, h("div", {}, [h("div", {})]))
+  cleanup()
   t.end()
 })

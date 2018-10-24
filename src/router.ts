@@ -9,7 +9,7 @@ class NoWindowObjectError extends Error {}
 class PreconditionNotSatisfiedError extends Error {}
 class PostconditionNotSatisfiedError extends Error {}
 
-interface IDestructedURL {
+export interface IDestructedURL {
     path: string
     query: string
     fragment: string
@@ -44,34 +44,37 @@ export const destructURL = (input: string, pattern: string) => {
     }
     return result
 }
-// export class Router {
-//     window: Window
-//     routes: Route[] = []
-//     constructor() {
-//         if (!window) throw new NoWindowObjectError("Router needs window object.")
-//         this.window = window
-//     }
-//     redirect(path: string) {
-//         // this.window.history.pushState(null, "", path)
-//         console.log(path)
-//     }
-    
-//     route(route: string, component: MetaMicoxContent) {
-//         const routeObj = new Route(route, component)
-//         this.routes.push(routeObj)
-//         return routeObj
-//     }
-// }
+export class Router {
+    window: Window
+    routes: Route[] = []
+    micox?: Micox
+    constructor() {
+        if (!window) throw new NoWindowObjectError("Router needs window object.")
+        this.window = window
+    }
+    redirect(path: string) {
+        for (const route of this.routes) {
+            const destructed = destructURL(path, route.pattern)
+            if (destructed) {
+                this.window.history.pushState(null, "", path)
+                this.micox && this.micox.contains(route.component(destructed)) && this.micox.update()
+                return
+            }
+        }
+    }
+    route(route: string, component: MetaMicoxContent) {
+        const routeObj = new Route(route, component)
+        this.routes.push(routeObj)
+        return routeObj
+    }
+}
 
-// export class Route {
-//     pattern: string
-//     component: MetaMicoxContent
-//     constructor(pattern: string, component: MetaMicoxContent) {
-//         this.pattern = pattern
-//         this.component = component
-//     }
-//     parsePattern(str: string) {
-//         new URITemplate(this.pattern)
-//     }
+export class Route {
+    pattern: string
+    component: MetaMicoxContent
+    constructor(pattern: string, component: MetaMicoxContent) {
+        this.pattern = pattern
+        this.component = component
+    }
     
-// }
+}

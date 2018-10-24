@@ -10,6 +10,7 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
 import {h} from "snabbdom/h"
 import {VNode} from "snabbdom/vnode"
 import {toVNode} from "snabbdom/tovnode"
+import { Router } from "./router";
 
 export type Action = (states: {}) => void
 export class Portal {
@@ -49,7 +50,7 @@ export class Micox {
     private propsFunc?: PropsFunction
     private eventsFunc?: EventsFunction
     private attrsFunc?: AttrsFunction
-    private content: MicoxContent| string | null = null
+    private content: Router | MicoxContent| string | null = null
     private vnode?: VNode
     private symbol: Symbol = Symbol()
     public parent?: Micox
@@ -78,8 +79,11 @@ export class Micox {
         portal.registerAction(this.symbol, this.update)
         this.update()
     }
-    contains = (content?: MicoxContent) => {
+    contains = (content?: MicoxContent | Router) => {
         this.content = content ? content : null
+        if (content instanceof Router) {
+            content.micox = this
+        }
         if (content instanceof Micox) {
             content.parent = this
         } else if (Array.isArray(content)) {
@@ -174,7 +178,6 @@ export class Micox {
                     dom.push(_content.element)
                 } else if (typeof _content === "string") dom.push(_content)
             }
-            dom = dom.filter(v => v) // remove undefined objects
             if(dom.length)
                 this.element = h(this.elementType, this.elementData, dom)
             else
