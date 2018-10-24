@@ -130,28 +130,48 @@ test("Micox can handle snabbdom's hooks", t => {
   t.end()
 })
 test("destructURL should work correctly with routing strings", t => {
-  const f = (url: string, data: {[key: string]: string}) => ({
-    query: "",
-    fragment: "",
-    path: url,
-    data: data
-  })
-  t.deepEqual(destructURL("/go/", "/go/"), f("/go/", {}))
-  t.deepEqual(destructURL("/go/to/path/3/", "/go/to/path/"), false)
-  t.deepEqual(destructURL("/go/to/path/3/", "/go/to/path/{:id}"), f("/go/to/path/3/", {id: "3"}))
-  t.deepEqual(destructURL("/go/to/path/3/id/", "/go/to/path/{:id}/id/{:s}"), false)
-  t.deepEqual(destructURL("/go/to/path/3/id/string", "/go/to/path/{:id}/id/{:s}"), f("/go/to/path/3/id/string", {id: "3", s: "string"}))
+  const f = (url: string, data: {[key: string]: string} | undefined, match: boolean) => {
+    let result = {
+      query: "",
+      fragment: "",
+      path: url,
+      data,
+      match
+    }
+    if (!data) delete result['data']
+    return result
+  }
+  t.deepEqual(destructURL("/go/", "/go/"), f("/go/", {}, true))
+  t.deepEqual(destructURL("/go/to/path/3/", "/go/to/path/"), f("/go/to/path/3/", undefined, false))
+  t.deepEqual(destructURL("/go/to/path/3/", "/go/to/path/{:id}"), f("/go/to/path/3/", {id: "3"}, true))
+  t.deepEqual(destructURL("/go/to/path/3/id/", "/go/to/path/{:id}/id/{:s}"), f("/go/to/path/3/id/", undefined, false))
+  t.deepEqual(destructURL("/go/to/path/3/id/string", "/go/to/path/{:id}/id/{:s}"), f("/go/to/path/3/id/string", {id: "3", s: "string"}, true))
   t.end()
 })
-test("Micox can mount Router ", t => {
+test("Micox can mount Router", t => {
   const cleanup = require('jsdom-global')("<div id='outer'><div id='container' /></div>", {
     url: "http://localhost:3000/"
   })
   const router = new Router()
+  router.route("/", (props: IDestructedURL) => html.div("root"), {fallback: true})
   router.route("/url", (props: IDestructedURL) => html.div())
   const m = new Micox().contains(router)
   router.redirect("/url")
   t.deepEqual(m.element, h("div", {}, [h("div", {})]))
+  cleanup()
+  t.end()
+})
+test("Router can handle a fallback", t => {
+  const cleanup = require('jsdom-global')("<div id='outer'><div id='container' /></div>", {
+    url: "http://localhost:3000/"
+  })
+  const router = new Router()
+  router.route("/", (props: IDestructedURL) => html.div("root"), {fallback: true})
+  router.route("/url", (props: IDestructedURL) => html.div())
+  const m = new Micox().contains(router)
+  router.redirect("/url")
+  router.redirect("/invalid/url")
+  t.deepEqual(m.element, h("div", {}, [h("div", "root")]))
   cleanup()
   t.end()
 })

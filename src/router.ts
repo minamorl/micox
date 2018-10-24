@@ -9,11 +9,16 @@ class NoWindowObjectError extends Error {}
 class PreconditionNotSatisfiedError extends Error {}
 class PostconditionNotSatisfiedError extends Error {}
 
+export interface IRouteOptions {
+    fallback?: boolean
+}
+
 export interface IDestructedURL {
     path: string
     query: string
     fragment: string
-    data: {[key: string]: string}
+    data?: {[key: string]: string}
+    match: boolean
 }
 
 export const destructURL = (input: string, pattern: string) => {
@@ -25,7 +30,7 @@ export const destructURL = (input: string, pattern: string) => {
     const normalizedPattern = pattern.split("/").filter(v => v && v !== "")
     const normalizedInput = input.split("/").filter(v => v && v !== "")
     if (normalizedInput.length !== normalizedPattern.length)
-        return false
+        return {path, query, fragment, match: false} as IDestructedURL
     
     let data: {[key: string]: string} = {}
     for (const [i, pattern] of normalizedPattern.entries()) {
@@ -33,14 +38,15 @@ export const destructURL = (input: string, pattern: string) => {
         if (patternRegex) {
             data[patternRegex[1]] = normalizedInput[i]
         } else if (normalizedInput[i] !== normalizedPattern[i]) {
-            return false
+            return {path, query, fragment, match: false} as IDestructedURL
         }
     }
     const result: IDestructedURL = {
-        query: query,
-        fragment: fragment,
-        path: path,
-        data: data
+        query,
+        fragment,
+        path,
+        data,
+        match: true
     }
     return result
 }
@@ -53,28 +59,38 @@ export class Router {
         this.window = window
     }
     redirect(path: string) {
+        let fallback: Route | null = null
         for (const route of this.routes) {
             const destructed = destructURL(path, route.pattern)
-            if (destructed) {
+            if (route.options && route.options.fallback === true) {
+                fallback = route
+            }
+            if (destructed.match) {
                 this.window.history.pushState(null, "", path)
                 this.micox && this.micox.contains(route.component(destructed)) && this.micox.update()
                 return
             }
         }
+        if (fallback) {
+            const destructed = destructURL(path, fallback.pattern)
+            this.window.history.pushState(null, "", path)
+            this.micox && this.micox.contains(fallback.component(destructed)) && this.micox.update()
+        }
     }
-    route(route: string, component: MetaMicoxContent) {
-        const routeObj = new Route(route, component)
+    route(route: string, component: MetaMicoxContent, options?: IRouteOptions) {
+        const routeObj = new Route(route, component, options)
         this.routes.push(routeObj)
         return routeObj
     }
 }
-
 export class Route {
     pattern: string
     component: MetaMicoxContent
-    constructor(pattern: string, component: MetaMicoxContent) {
+    options?: IRouteOptions
+    constructor(pattern: string, component: MetaMicoxContent, options?: IRouteOptions) {
         this.pattern = pattern
         this.component = component
+        this.options = options
     }
     
 }
