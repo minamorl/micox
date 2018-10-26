@@ -8,9 +8,10 @@ Micox is a declarative web framework designed for simplicity. It uses virtualdom
 
 ## Features
 
-- A simple state management system.
+- A simple state management system
 - Virtual DOM (via snabbdom)
 - Declarative syntax, which does not depends JSX
+- Standard flexible router (optional)
 
 ## Usage
 
@@ -43,11 +44,35 @@ TL;DR: There are two main objects, `Micox` and `Portal`. `Micox` is a virtual do
 
 ### Micox
 
-Micox is a wrapper of DOM object. This class provides core functions to define DOM objects and its APIs. The constructor takes two arguments, `portal` and `patchTo`. Both are optional arguments. But you may need to set those arguments at defining a root object. `portal` is an instance of `Portal` and `patchTo` is a container object like a HTML element.
+Micox is a wrapper of DOM object. This class provides core functions to define DOM objects and its APIs. The constructor takes two arguments, `portal` and `patchTo`. `portal` is an instance of `Portal` and `patchTo` is a container object like a HTML element. Both are optional arguments. But you may need to set those arguments at defining a root object.
 
 ### Portal
 
 Portal has two functions, called `get` and `transfer`. As its name suggests, `get` receives current states from a portal. And `transfer` transfers any objects with key. Any type of key is allowed. So you can choose `string` or `Symbol` or anything you like.
+
+### Router
+
+Router is provided as a separated module. If you want to use, import `micox/dist/router`.
+
+```ts
+import {Micox, Portal, html} from "micox"
+import { Router } from "micox/dist/router";
+const portal = new Portal()
+
+document.addEventListener("DOMContentLoaded", function(event) {
+  const container = document.querySelector("#app")
+  const router = new Router()
+  router.route("/", (props) => {
+    return html.div("Index page")
+  }, {
+    fallback: true
+  })
+  router.route("/{:string}", (props) => {
+    return html.div("data:" + JSON.stringify(props.data))
+  })
+  new Micox(portal, container!).contains(router)
+})
+```
 
 ## Internal
 
