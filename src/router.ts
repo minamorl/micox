@@ -53,10 +53,14 @@ export const destructURL = (input: string, pattern: string) => {
 export class Router {
     window: Window
     routes: Route[] = []
-    micox?: Micox
+    _micox?: Micox
     constructor() {
         if (!window) throw new NoWindowObjectError("Router needs window object.")
         this.window = window
+    }
+    set micox(micox: Micox) {
+        this._micox = micox
+        this.redirect(this.window.location.pathname)
     }
     redirect(path: string) {
         let fallback: Route | null = null
@@ -67,14 +71,14 @@ export class Router {
             }
             if (destructed.match) {
                 this.window.history.pushState(null, "", path)
-                this.micox && this.micox.contains(route.component(destructed)) && this.micox.update()
+                this._micox && this._micox.contains(route.component(destructed)) && this._micox.update()
                 return
             }
         }
         if (fallback) {
             const destructed = destructURL(path, fallback.pattern)
             this.window.history.pushState(null, "", path)
-            this.micox && this.micox.contains(fallback.component(destructed)) && this.micox.update()
+            this._micox && this._micox.contains(fallback.component(destructed)) && this._micox.update()
         }
     }
     route(route: string, component: MetaMicoxContent, options?: IRouteOptions) {
