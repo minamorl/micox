@@ -1,8 +1,8 @@
 import {Portal, MicoxContent, Micox} from "."
 import URI from "urijs"
 
-type ConditionCallback = (portal: Portal) => boolean
-type MetaMicoxContent = (props: IDestructedURL) => MicoxContent
+export type ConditionCallback = (portal: Portal) => boolean
+export type MetaMicoxContent = (props: IDestructedURL) => MicoxContent
 
 class NoWindowObjectError extends Error {}
 
